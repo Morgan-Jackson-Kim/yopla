@@ -35,9 +35,16 @@ public class UsersProvider {
 
     //로그인
     public PostLoginRes logIn(PostLoginReq postLoginReq) throws BaseException{
-        Users users = usersDAO.getPwd(postLoginReq);
+        Users users;
+        try {
+            users = usersDAO.getPwd(postLoginReq);
+        }catch (Exception ignored) {
+            throw new BaseException(DISABLED_USER);
+        }
+
         String password;
         try {
+
             if(this.idDuplicate(postLoginReq.getLoginId()) == "notExist"){
                 throw new BaseException(FAILED_TO_LOGIN);
             }
@@ -150,6 +157,26 @@ public class UsersProvider {
         try {
             List<GetBookmarkList> getBookmarkList =usersDAO.bookmarkLists(userId);
             return getBookmarkList;
+
+        }catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public List<GetMyRecipeList> getMyRecipes(int userId) throws BaseException{
+        try {
+            List<GetMyRecipeList> getMyRecipeLists =usersDAO.myRecipes(userId);
+            return getMyRecipeLists;
+
+        }catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public List<GetMyRR> getMyRRs(int userId) throws BaseException{
+        try {
+            List<GetMyRR> getMyRRList =usersDAO.myRReviews(userId);
+            return getMyRRList;
 
         }catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);

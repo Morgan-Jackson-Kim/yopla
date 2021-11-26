@@ -260,24 +260,62 @@ public class UsersController {
         }
     }
 
+    //유저의 북마크 목록
     @ResponseBody
     @GetMapping("/{userId}/bookmarks")
-    public BaseResponse2<GetBookmarksCount, List<GetBookmarkList>> getbookmarkss(@PathVariable("userId") int userId){
+    public BaseResponse< List<GetBookmarkList>> getbookmarkss(@PathVariable("userId") int userId){
         try{
             int userIdxByJwt = jwtService.getUserIdx();
 
             if(userId != userIdxByJwt){
-                return new BaseResponse2<>(INVALID_USER_JWT);
+                return new BaseResponse<>(INVALID_USER_JWT);
             }
-
-            GetBookmarksCount getBookmarksCount = usersProvider.getBookmarksCount(userId);
 
             List<GetBookmarkList> getBookmarkList = usersProvider.getBookmarkLists(userId);
 
-            return new BaseResponse2<>(getBookmarksCount,getBookmarkList);
+            return new BaseResponse<>(getBookmarkList);
 
         } catch (BaseException exception) {
-            return new BaseResponse2<>((exception.getStatus()));
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+    //유저 레시피 목록
+    @ResponseBody
+    @GetMapping("/{userId}/recipes")
+    public BaseResponse< List<GetMyRecipeList>> getMyRecipes(@PathVariable("userId") int userId){
+        try{
+            int userIdxByJwt = jwtService.getUserIdx();
+
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
+            List<GetMyRecipeList> getMyRecipeLists = usersProvider.getMyRecipes(userId);
+
+            return new BaseResponse<>(getMyRecipeLists);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    //내 레시피 반응
+    @ResponseBody
+    @GetMapping("/{userId}/myRecipeReviews")
+    public BaseResponse<List<GetMyRR>> getMyRecipesReviews(@PathVariable("userId") int userId){
+        try{
+            int userIdxByJwt = jwtService.getUserIdx();
+
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
+            List<GetMyRR> getMyRRList = usersProvider.getMyRRs(userId);
+
+            return new BaseResponse<>(getMyRRList);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
         }
     }
 
@@ -382,5 +420,36 @@ public class UsersController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
+
+    @ResponseBody
+    @PatchMapping("/secession")
+    public BaseResponse<String> userDisable(@RequestBody UserDisable userDisable){
+        int userId = userDisable.getUserId();
+        String password = userDisable.getPassword();
+        if(userId == 0){
+            return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
+        }
+        try{
+
+            if(userId != 0){
+
+                int userIdxByJwt = jwtService.getUserIdx();
+
+                if(userId != userIdxByJwt){
+                    return new BaseResponse<>(INVALID_USER_JWT);
+                }
+            }
+
+
+            usersService.userDiabling(userId,password);
+            String result = "account deleted";
+
+            return new BaseResponse<>(result);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
 
 }

@@ -146,6 +146,35 @@ public class UsersService {
         }
     }
 
+    public void userDiabling(int userId,String password) throws BaseException{
+        String origin;
+        try {
+            Users users = usersDAO.getPwd2(userId);
+
+            origin = new AES128(Secret.USER_INFO_PASSWORD_KEY).decrypt(users.getPassword());
+
+
+        }catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+        if( !origin.equals(password) ){
+            throw new BaseException(WRONG_PASSWORD);
+        }
+        try{
+
+
+            int result = usersDAO.userDisableWorks(userId);
+
+            if(result == 0){
+                throw new BaseException(MODIFY_FAIL_USERSTATUS);
+            }
+
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
 
 
 }

@@ -1,6 +1,7 @@
 package com.example.demo.src.users;
 
 
+import com.example.demo.src.posts.model.review.GetReviews;
 import com.example.demo.src.users.model.*;
 import com.example.demo.src.users.model.login.PostLoginReq;
 import com.example.demo.src.users.model.login.PostUsersReq;
@@ -78,7 +79,7 @@ public class UsersDAO {
     }
 
     public Users getPwd(PostLoginReq postLoginReq){
-        String getPwdQuery = "select usersIdx, loginId, password , userName, userNickName, userEmail, phoneNumber, address, userGrade, accountStatus from users where loginId = ?";
+        String getPwdQuery = "select usersIdx, loginId, password , userName, userNickName, userEmail, phoneNumber, address, userGrade, accountStatus from users where loginId = ? AND accountStatus = 'active'";
         String getPwdParams = postLoginReq.getLoginId();
 
         return this.jdbcTemplate.queryForObject(getPwdQuery,
@@ -95,6 +96,25 @@ public class UsersDAO {
                         rs.getString("accountStatus")
                 ),
                 getPwdParams);
+    }
+
+    public Users getPwd2(int userId){
+        String getPwd2Query = "select usersIdx, loginId, password , userName, userNickName, userEmail, phoneNumber, address, userGrade, accountStatus from users where usersIdx = ? AND accountStatus ='active'";
+        int getPwd2Params = userId;
+        return this.jdbcTemplate.queryForObject(getPwd2Query,
+                (rs,rowNum)-> new Users(
+                        rs.getInt("usersIdx"),
+                        rs.getString("loginId"),
+                        rs.getString("password"),
+                        rs.getString("userName"),
+                        rs.getString("userNickName"),
+                        rs.getString("userEmail"),
+                        rs.getString("phoneNumber"),
+                        rs.getString("address"),
+                        rs.getString("userGrade"),
+                        rs.getString("accountStatus")
+                ),
+                getPwd2Params);
     }
 
     public GetMykurlyRes getUserMykurly(int userId){
@@ -214,17 +234,74 @@ public class UsersDAO {
     }
 
     public List<GetBookmarkList> bookmarkLists(int userId){
-        String  getbookmarkListsQuery = "select bookmarkIdx ,productImagePath, productName, basePrice, discount from pBookmarks join products  on pBookmarks.productId = products.productsIdx where pBookmarks.userId= ?  && pBookmarks.status='active' ";
+        String  getbookmarkListsQuery = " select bookmarkIdx ,recipeId, recipes.recipeFrontImage , recipes.recipeName , users.userNickName, recipes.category  ,\n" +
+                "(select (sum(scores)/count(*)) from reviews where reviews.recipeId = recipes.recipesIdx && reviews.status = 'active') as averageScore,\n" +
+                "(select count(*)  from rBookmarks where recipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active') as bookmarkCount\n" +
+                "from rBookmarks \n" +
+                "join recipes \n" +
+                "join users \n" +
+                "on recipes.recipesIdx = rBookmarks.recipeId AND recipes.userId = users.usersIdx \n" +
+                "where rBookmarks.userId = ? AND rBookmarks.status = 'active' ORDER BY rBookmarks.bookmarkIdx DESC;";
         Object[] getbookmarkListsParams = new Object[]{userId};
         return this.jdbcTemplate.query(getbookmarkListsQuery,
                 (rs,rowNum) -> new GetBookmarkList(
                         rs.getInt("bookmarkIdx"),
-                        rs.getString("productImagePath"),
-                        rs.getString("productName"),
-                        rs.getInt("basePrice"),
-                        rs.getInt("discount")),
+                        rs.getInt("recipeId"),
+                        rs.getString("recipeFrontImage"),
+                        rs.getString("recipeName"),
+                        rs.getString("userNickName"),
+                        rs.getString("category"),
+                        rs.getInt("averageScore"),
+                        rs.getInt("bookmarkCount")),
                 getbookmarkListsParams);
     }
+
+
+
+
+    public List<GetMyRecipeList> myRecipes(int userId){
+        String  getbookmarkListsQuery = "select recipesIdx , recipeFrontImage, recipeName,category,\n" +
+                "(select (sum(scores)/count(*)) from reviews where reviews.recipeId = recipes.recipesIdx && reviews.status = 'active') as averageScore,\n" +
+                "(select count(*)  from rBookmarks where recipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active') as bookmarkCount\n" +
+                "from recipes\n" +
+                "where userId = ? AND recipes.status = 'active'; ";
+        Object[] getbookmarkListsParams = new Object[]{userId};
+        return this.jdbcTemplate.query(getbookmarkListsQuery,
+                (rs,rowNum) -> new GetMyRecipeList(
+                        rs.getInt("recipesIdx"),
+                        rs.getString("recipeFrontImage"),
+                        rs.getString("recipeName"),
+                        rs.getString("category"),
+                        rs.getInt("averageScore"),
+                        rs.getInt("bookmarkCount")),
+                getbookmarkListsParams);
+    }
+
+
+
+    public List<GetMyRR> myRReviews(int userId){
+        String  getReviewsQuery = "select reviewsIdk,(select users.userNickName from users where users.usersIdx = reviews.userId) as userNickName, \n" +
+                "(select users.profileImage from users where users.usersIdx = reviews.userId) as userPI ,content, scores,(select recipeName from recipes where reviews.recipeId = recipes.recipesIdx) as recipeName ,\n" +
+                " date_format(reviews.createdAt, '%Y. %c. %d ')createdAt \n" +
+                " from reviews\n" +
+                " join recipes\n" +
+                " on recipes.userId = ? AND recipes.status = 'active'\n" +
+                " where  reviews.recipeId = recipes.recipesIdx && reviews.status='active' order by reviews.reviewsIdk desc ";
+        Object[] getReviewsParams = new Object[]{userId};
+        return this.jdbcTemplate.query(getReviewsQuery,
+                (rs,rowNum) -> new GetMyRR(
+                        rs.getInt("reviewsIdk"),
+                        rs.getString("userNickName"),
+                        rs.getString("userPI"),
+                        rs.getString("content"),
+                        rs.getFloat("scores"),
+                        rs.getString("recipeName"),
+                        rs.getString("createdAt")),
+                getReviewsParams);
+    }
+
+
+
 
     public List<GetPurchaedInfo> getPurchaedInfos(int userId){
         String  getPurchaedInfosQuery = "select invoiceIdx , products.productName,products.productImagePath, invoice.basePrice, paidPrice,invoice.stocks,shippment from invoice join products  on invoice.productId = products.productsIdx where invoice.userId= ?  && invoice.payment='paid' ORDER BY invoice.createdAt DESC  ";
@@ -239,6 +316,14 @@ public class UsersDAO {
                         rs.getInt("invoice.stocks"),
                         rs.getString("shippment")),
                 getPurchaedInfosParams);
+    }
+
+
+
+    public int userDisableWorks(int userId){
+        String disableUserQuery = "update users set accountStatus = 'disable' where usersIdx = ?  AND accountStatus = 'active'";
+        int disableUserParams = userId;
+        return this.jdbcTemplate.update(disableUserQuery,disableUserParams);
     }
 
 

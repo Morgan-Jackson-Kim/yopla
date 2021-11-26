@@ -7,9 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class PostProductReviewReq {
+public class EditReviewReq {
     private int userId;
     private int recipeId;
     private String content;
     private Float point;
+    private String status;
 }

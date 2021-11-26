@@ -1,15 +1,12 @@
-package com.example.demo.src.posts.model.review;
+package com.example.demo.src.posts.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.sql.Timestamp;
-
 @Getter
 @Setter
 @AllArgsConstructor
-public class GetReviews {
+public class GetRecipeRevies {
     private int reviewsIdx;
     private String userNickName;
     private String userPI;

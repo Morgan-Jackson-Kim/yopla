@@ -1,17 +1,14 @@
-package com.example.demo.src.posts.model.recipe;
+package com.example.demo.src.posts.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
-
-public class NewRecipeDetails {
-
+public class GetRecipeDetailsPages {
+    private int recipeDetailsIdx;
     private String title;
     private String ingredients;
     private String contents;

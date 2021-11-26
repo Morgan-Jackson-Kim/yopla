@@ -81,7 +81,7 @@ public class PostsService {
                                 return recipeId;
 //                        }
                 }catch (Exception exception) {
-                        throw new BaseException(TEST_ERROR);
+                        throw new BaseException(TEST_ERROR1);
                 }
         }
 
@@ -94,8 +94,9 @@ public class PostsService {
                                 String ingredients = newRecipeDetails.getIngredients();
                                 String content = newRecipeDetails.getContents();
                                 String fileUrl = newRecipeDetails.getDetailFileUrl();
+                                String fileType = newRecipeDetails.getFileType();
 
-                                postsDAO.createRecipeDetails(recipeId,title,ingredients,content,fileUrl);
+                                postsDAO.createRecipeDetails(recipeId,title,ingredients,content,fileUrl,fileType);
                         });
 
                         result = "success";
@@ -129,7 +130,7 @@ public class PostsService {
                         throw new BaseException(INSERT_FAIL_POSTBOOKMARK);
                     }
                 }catch (Exception exception) {
-                    throw new BaseException(TEST_ERROR);
+                    throw new BaseException(TEST_ERROR1);
                 }
         }
 
@@ -144,6 +145,94 @@ public class PostsService {
                     throw new BaseException(DATABASE_ERROR);
                 }
         }
+
+        //대중레시피 전용 업로드
+
+        public int CreatePublicNewRecipes(createNewRecipe request) throws BaseException{
+                try {
+                        int recipeId ;
+
+                        recipeId = postsDAO.createPublicRecipes(request);
+
+                        for(int i = 0 ; i < request.getTags().size(); i ++){
+                                String nTageName = request.getTags().get(i);
+                                int checkedTagId = postsDAO.checkTag(nTageName);
+                                if(checkedTagId == 0){
+                                        int newTagId = postsDAO.addNewTag(nTageName);
+                                        postsDAO.linkTag(newTagId,recipeId);
+                                }else {
+                                        GetTagIdRes getTagIdRes = postsDAO.getTagId(nTageName);
+                                        int existTagId = getTagIdRes.getTagId();
+                                        postsDAO.linkTag(existTagId,recipeId);
+                                }
+                        }
+
+                        return recipeId;
+
+                }catch (Exception exception) {
+                        throw new BaseException(TEST_ERROR1);
+                }
+        }
+
+        public String addPublicRecipeDetails(RecipeDetailsList request) throws BaseException{
+                int recipeId = request.getRecipeId();
+                try {
+                        String result ;
+                        request.getNewRecipeDetails().stream().forEach(newRecipeDetails -> {
+                                String title = newRecipeDetails.getTitle();
+                                String ingredients = newRecipeDetails.getIngredients();
+                                String content = newRecipeDetails.getContents();
+                                String fileUrl = newRecipeDetails.getDetailFileUrl();
+                                String fileType = newRecipeDetails.getFileType();
+
+                                postsDAO.createPublicRecipeDetails(recipeId,title,ingredients,content,fileUrl,fileType);
+                        });
+
+                        result = "success";
+
+                        return result;
+
+                }catch (Exception exception) {
+                        throw new BaseException(DATABASE_ERROR);
+                }
+        }
+        //대중레시피 전용 업로드 끝
+
+
+        public int postProductReview(PostProductReviewReq postProductReviewReq)throws BaseException{
+                try{
+                        if(postsProvider.checkAbleWriteReview(postProductReviewReq.getUserId(),postProductReviewReq.getRecipeId()) != 0){
+                                throw new BaseException(POST_REVIEWS_EXIST);
+                        }
+
+                        int result = postsDAO.addReviews(postProductReviewReq);
+                        if(result == 0){
+                                throw new BaseException(INSERT_FAIL_REVIEW);
+                        }
+                        return result;
+                } catch (Exception exception){
+                        throw new BaseException(DATABASE_ERROR);
+                }
+        }
+
+
+
+        public int editReview(EditReviewReq editReviewReq)throws BaseException{
+                try{
+
+
+                        int result = postsDAO.editReview(editReviewReq);
+                        if(result == 0){
+                                throw new BaseException(MODIFY_FAIL_REVIEW);
+                        }
+                        return result;
+                } catch (Exception exception){
+                        throw new BaseException(DATABASE_ERROR);
+                }
+        }
+
+
+
 }
 
 

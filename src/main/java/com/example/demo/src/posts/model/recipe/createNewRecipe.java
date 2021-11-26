@@ -19,6 +19,7 @@ public class createNewRecipe {
     private String recipeName;
     private String category;
     private String frontImageUrl;
+    private String time;
     private ArrayList<String> tags ;
 
 }
