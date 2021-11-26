@@ -119,6 +119,74 @@ public class PostsService {
 
         }
 
+        public int PatchRecipes(createNewRecipe request) throws BaseException{
+                try {
+                        int recipeId ;
+
+                        recipeId = postsDAO.createRecipes(request);
+
+                        for(int i = 0 ; i < request.getTags().size(); i ++){
+                                String nTageName = request.getTags().get(i);
+                                int checkedTagId = postsDAO.checkTag(nTageName);
+                                if(checkedTagId == 0){
+                                        int newTagId = postsDAO.addNewTag(nTageName);
+                                        postsDAO.linkTag(newTagId,recipeId);
+                                }else {
+                                        GetTagIdRes getTagIdRes = postsDAO.getTagId(nTageName);
+                                        int existTagId = getTagIdRes.getTagId();
+                                        postsDAO.linkTag(existTagId,recipeId);
+                                }
+                        }
+
+
+                        return recipeId;
+
+                }catch (Exception exception) {
+                        throw new BaseException(TEST_ERROR1);
+                }
+        }
+
+        public String PatchRecipesDetails(RecipeDetailsList request) throws BaseException{
+                int recipeId = request.getRecipeId();
+                try {
+                        String result ;
+                        request.getNewRecipeDetails().stream().forEach(newRecipeDetails -> {
+                                String title = newRecipeDetails.getTitle();
+                                String ingredients = newRecipeDetails.getIngredients();
+                                String content = newRecipeDetails.getContents();
+                                String fileUrl = newRecipeDetails.getDetailFileUrl();
+                                String fileType = newRecipeDetails.getFileType();
+
+                                postsDAO.createRecipeDetails(recipeId,title,ingredients,content,fileUrl,fileType);
+                        });
+
+                        result = "success";
+
+                        return result;
+
+                }catch (Exception exception) {
+                        throw new BaseException(DATABASE_ERROR);
+                }
+
+        }
+
+
+        public void deleteRecipe(DeleteRecipe deleteRecipe)throws BaseException{
+                if(postsProvider.checkRecipe(deleteRecipe) == 0){
+                        throw new BaseException(POST_USERS_EXISTS_NON_EXIST_RECIPE);
+                }
+                try{
+                        int result = postsDAO.deleteRecipe(deleteRecipe);
+
+                        if(result == 0){
+                                throw new BaseException(DELETE_FAIL_RECIPE);
+                        }
+                }catch (Exception exception) {
+                        throw new BaseException(DATABASE_ERROR);
+                }
+        }
+
+
         public void createBookmark(PostBookmarkReq postBookmarkReq)throws BaseException{
                 if(postsProvider.checkBookmark(postBookmarkReq) == 1){
                     throw new BaseException(POST_USERS_EXISTS_BOOKMARK);
@@ -130,7 +198,7 @@ public class PostsService {
                         throw new BaseException(INSERT_FAIL_POSTBOOKMARK);
                     }
                 }catch (Exception exception) {
-                    throw new BaseException(TEST_ERROR1);
+                    throw new BaseException(DATABASE_ERROR);
                 }
         }
 

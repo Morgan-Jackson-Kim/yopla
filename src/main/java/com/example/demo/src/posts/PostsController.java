@@ -69,7 +69,7 @@ public class PostsController {
 
     @ResponseBody
     @PostMapping("/recipes/{recipeId}")
-    public BaseResponse<String> createNewRecipes(@RequestBody RecipeDetailsList request){
+    public BaseResponse<String> createNewdetailRecipes(@RequestBody RecipeDetailsList request){
         try{
 
             String result ;
@@ -90,6 +90,94 @@ public class PostsController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
+
+    //레시피 수정
+//    @ResponseBody
+//    @PatchMapping("/recipes/patchFront")
+//    public BaseResponse<Integer> patchRecipes(@RequestBody createNewRecipe request){
+//        int userId = request.getUserId();
+//        if(userId == 0){
+//            return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
+//        }
+//        try{
+//
+//            if(userId != 0){
+//
+//                int userIdxByJwt = jwtService.getUserIdx();
+//
+//                if(userId != userIdxByJwt){
+//                    return new BaseResponse<>(INVALID_USER_JWT);
+//                }
+//            }
+//
+//            Integer recipeId = 0;
+//
+//            recipeId = postsService.CreateNewRecipes(request);
+//
+//
+//            return new BaseResponse<>(recipeId);
+//
+//        } catch (BaseException exception) {
+//            return new BaseResponse<>((exception.getStatus()));
+//        }
+//    }
+//
+//    @ResponseBody
+//    @PatchMapping("/recipes/patchDetails")
+//    public BaseResponse<String> patchDRecipes(@RequestBody RecipeDetailsList request){
+//        try{
+//
+//            String result ;
+//
+//            if (request.getRecipeId() == 0){
+//                return new BaseResponse<>(POST_RECIPE_ID);
+//            }
+//
+//            if(request.getNewRecipeDetails() ==null){
+//                return new BaseResponse<>(POST_RECIPE_DETAILS);
+//            }
+//
+//            result =postsService.addRecipeDetails(request);
+//
+//            return new BaseResponse<>(result);
+//
+//        } catch (BaseException exception) {
+//            return new BaseResponse<>((exception.getStatus()));
+//        }
+//    }
+
+    @ResponseBody
+    @PatchMapping("/recipes/status")
+    public BaseResponse<String> delRecipes(@RequestBody DeleteRecipe request){
+        int userId = request.getUserId();
+        if(userId == 0){
+            return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
+        }
+        try{
+
+            if(userId != 0){
+
+                int userIdxByJwt = jwtService.getUserIdx();
+
+                if(userId != userIdxByJwt){
+                    return new BaseResponse<>(INVALID_USER_JWT);
+                }
+            }
+
+            postsService.deleteRecipe(request);
+
+            String result = "deleted";
+
+
+            return new BaseResponse<>(result);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+
+    //레시피 수정 끝
 
     @ResponseBody
     @PostMapping("/recipes/bookmark")
@@ -164,36 +252,6 @@ public class PostsController {
         }
     }
 
-//    @ResponseBody
-//    @GetMapping("/{userId}/products/{productId}/info")
-//    public BaseResponse<GetProductInfo> getProductDetail(@PathVariable("userId") Integer userId,@PathVariable("productId") int productId){
-//        try {
-//            if(userId == null){
-//                return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
-//            }
-//
-//
-//            if(userId != 0){
-//
-//                int userIdxByJwt = jwtService.getUserIdx();
-//
-//                if(userId != userIdxByJwt){
-//                    return new BaseResponse<>(INVALID_USER_JWT);
-//                }
-//            }
-//            if(productId == 0){
-//                return new BaseResponse<>(POST_PRODUCTS_EMPTY_PRODUCTID);
-//            }
-//
-//            GetProductInfo getProductInfo;
-//            getProductInfo = productsProvider.getProductDetail(userId,productId);
-//            return new BaseResponse<>(getProductInfo);
-//
-//
-//        }catch (BaseException exception){
-//            return new BaseResponse<>((exception.getStatus()));
-//        }
-//    }
 
     @ResponseBody
     @GetMapping("/{userId}/pplsRecipes")
@@ -222,12 +280,71 @@ public class PostsController {
             return new BaseResponse4<>((exception.getStatus()));
         }
     }
+
+    @ResponseBody
+    @GetMapping("/{userId}/pplsRecipes/shortsForm")
+    public BaseResponse<List<GetShortsRes>> getpplsRecipesSF (@PathVariable("userId") Integer userId){
+        if(userId == 0){
+            return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
+        }
+        try {
+
+
+            if(userId != 0){
+
+                int userIdxByJwt = jwtService.getUserIdx();
+
+                if(userId != userIdxByJwt){
+                    return new BaseResponse<>(INVALID_USER_JWT);
+                }
+            }
+
+            List<GetShortsRes> getShortsRes = postsProvider.getmoreShorts(userId);
+
+            return new BaseResponse<>(getShortsRes);
+        }catch (BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    @ResponseBody
+    @GetMapping("/{userId}/pplsRecipes/hots")
+    public BaseResponse<List<GetHotsRes>> getpplsRecipesH (@PathVariable("userId") Integer userId){
+        if(userId == 0){
+            return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
+        }
+        try {
+
+            if(userId != 0){
+
+                int userIdxByJwt = jwtService.getUserIdx();
+
+                if(userId != userIdxByJwt){
+                    return new BaseResponse<>(INVALID_USER_JWT);
+                }
+            }
+
+            List<GetHotsRes> getHotsRes = postsProvider.getmoreHots(userId);
+
+
+            return new BaseResponse<>(getHotsRes);
+        }catch (BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+
     // 대중 레시피 전용
 
     @ResponseBody
     @GetMapping("/{userId}/publicRecipes")
     public BaseResponse4<List<GetMainAdvertisesRes>,List<GetShortsRes>,List<GetHotsRes>,List<GetRecommendRes>> GetMainPublicPage (@PathVariable("userId") Integer userId){
+        if(userId == 0){
+            return new BaseResponse4<>(POST_PRODUCTS_EMPTY_USERID);
+        }
         try {
+
+
             if(userId != 0){
 
                 int userIdxByJwt = jwtService.getUserIdx();
@@ -251,6 +368,58 @@ public class PostsController {
             return new BaseResponse4<>((exception.getStatus()));
         }
     }
+
+    @ResponseBody
+    @GetMapping("/{userId}/publicRecipes/shortsForm")
+    public BaseResponse<List<GetShortsRes>> getpublicRecipesRecipesSF (@PathVariable("userId") Integer userId){
+        if(userId == 0){
+            return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
+        }
+        try {
+
+            if(userId != 0){
+
+                int userIdxByJwt = jwtService.getUserIdx();
+
+                if(userId != userIdxByJwt){
+                    return new BaseResponse<>(INVALID_USER_JWT);
+                }
+            }
+
+            List<GetShortsRes> getShortsRes = postsProvider.getPublicMoreShorts(userId);
+
+            return new BaseResponse<>(getShortsRes);
+        }catch (BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    @ResponseBody
+    @GetMapping("/{userId}/publicRecipes/hots")
+    public BaseResponse<List<GetHotsRes>> getpublicRecipesRecipesH (@PathVariable("userId") Integer userId){
+        if(userId == 0){
+            return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
+        }
+        try {
+
+            if(userId != 0){
+
+                int userIdxByJwt = jwtService.getUserIdx();
+
+                if(userId != userIdxByJwt){
+                    return new BaseResponse<>(INVALID_USER_JWT);
+                }
+            }
+
+            List<GetHotsRes> getHotsRes = postsProvider.getPublicMoreHots(userId);
+
+
+            return new BaseResponse<>(getHotsRes);
+        }catch (BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
 
     // 대중레시피 업로드 전용
     @ResponseBody
@@ -529,10 +698,6 @@ public class PostsController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
-
-
-
-
 
 
 }

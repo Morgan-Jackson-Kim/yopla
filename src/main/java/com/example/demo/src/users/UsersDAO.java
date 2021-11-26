@@ -1,6 +1,8 @@
 package com.example.demo.src.users;
 
 
+import com.example.demo.src.posts.model.bookmark.PostBookmarkReq;
+import com.example.demo.src.posts.model.recipe.DeleteRecipe;
 import com.example.demo.src.posts.model.review.GetReviews;
 import com.example.demo.src.users.model.*;
 import com.example.demo.src.users.model.login.PostLoginReq;
@@ -116,6 +118,27 @@ public class UsersDAO {
                 ),
                 getPwd2Params);
     }
+
+
+    public GetUserInfo getYoplaUserInfo(int userId){
+        String getUserYoplaQuery = "select usersIdx, profileImage, userNickName, loginId, userGrade , userEmail, phoneNumber, address from users where usersIdx = ? AND accountStatus ='active'";
+        int getUserYoplaParams = userId;
+        return this.jdbcTemplate.queryForObject(getUserYoplaQuery,
+                (rs, rowNum) -> new GetUserInfo(
+                        rs.getInt("usersIdx"),
+                        rs.getString("profileImage"),
+                        rs.getString("userNickName"),
+                        rs.getString("loginId"),
+                        rs.getInt("userGrade"),
+                        rs.getString("userEmail"),
+                        rs.getString("phoneNumber"),
+                        rs.getString("address")
+                ),
+                getUserYoplaParams);
+
+    }
+
+
 
     public GetMykurlyRes getUserMykurly(int userId){
         String getUserMykurlyQuery = "SELECT UsersIdx, Users.Rank, Users.Name, Users.SaveMoney, (select count(*) from clinker where Users.UsersIdx = clinker.userId) as 'couponCount', (select count(*) from pBookmarks where Users.UsersIdx = pBookmarks.userId && pBookmarks.status = 'active' ) as 'bookmarks', Users.Address from Users where Users.UsersIdx = ? limit 1";
@@ -324,6 +347,59 @@ public class UsersDAO {
         String disableUserQuery = "update users set accountStatus = 'disable' where usersIdx = ?  AND accountStatus = 'active'";
         int disableUserParams = userId;
         return this.jdbcTemplate.update(disableUserQuery,disableUserParams);
+    }
+
+    public int userInfoPatchWork(PatchUserInfo patchUserInfo){
+        String patchUserQuery = "update users set loginId = ?, userNickName = ?, userEmail = ?, address = ? where usersIdx = ?  AND accountStatus = 'active'";
+        Object[] patchUserParams = new Object[]{patchUserInfo.getLoginId(),patchUserInfo.getUserNickName(),patchUserInfo.getEmail(),patchUserInfo.getAddress(),patchUserInfo.getUserId()};
+        return this.jdbcTemplate.update(patchUserQuery,patchUserParams);
+    }
+
+    public int userInfoPatchWorkNotNewPass(PatchUserInfo patchUserInfo, String Newpassword){
+        String patchUserQuery = "update users set loginId = ?, userNickName = ?, userEmail = ?, address = ? ,password = ? where usersIdx = ?  AND accountStatus = 'active'";
+
+        Object[] patchUserParams = new Object[]{patchUserInfo.getLoginId(),patchUserInfo.getUserNickName(),patchUserInfo.getEmail(),patchUserInfo.getAddress(),Newpassword,patchUserInfo.getUserId()};
+        return this.jdbcTemplate.update(patchUserQuery,patchUserParams);
+    }
+
+
+    public int userPIPatch(PatchUserPI patchUserPI){
+        String patchUserQuery = "update users set profileImage = ? where usersIdx = ?  AND accountStatus = 'active'";
+        Object[] patchUserParams = new Object[]{patchUserPI.getNewProfileImage(),patchUserPI.getUserId()};
+        return this.jdbcTemplate.update(patchUserQuery,patchUserParams);
+    }
+
+    public int checkReports(int userId , int recipeId){
+        String checkReportsQuery = "select exists(select rstatus from recipeReports where rstatus = 'active' && userId = ? && recipeId = ?)";
+        Object[] checkReportsParams = new Object[]{userId,recipeId};
+        return this.jdbcTemplate.queryForObject(checkReportsQuery,
+                int.class,
+                checkReportsParams);
+    }
+
+
+
+    public int checkDisableReports(int recipeId){
+        String checkReportsQuery = "select count(*) from recipeReports where rstatus = 'active' && recipeId = ?";
+        Object[] checkReportsParams = new Object[]{recipeId};
+        return this.jdbcTemplate.queryForObject(checkReportsQuery,
+                int.class,
+                checkReportsParams);
+    }
+
+    public int disableRecipeTemp(int recipeId){
+        String deleteRecipQuery  = "update recipes,recipeDetails set recipes.status = 'tempDisable', recipeDetails.status = 'tempDisable'  where recipeDetails.recipeId = recipes.recipesIdx AND recipeId = ? ";
+        Object[] deleteRecipParams = new Object[]{ recipeId};
+        return this.jdbcTemplate.update(deleteRecipQuery,deleteRecipParams);
+    }
+
+    public int createReport(PostReport postReport){
+        String postReportQuery  = "insert into recipeReports (userId , recipeId) VALUES(?,?)";
+        Object[] postReportParams = new Object[]{ postReport.getUserId() , postReport.getRecipeId()};
+        this.jdbcTemplate.update(postReportQuery,postReportParams);
+
+        String lastInsertIdQuery = "select last_insert_id()";
+        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
     }
 
 

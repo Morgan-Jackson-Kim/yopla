@@ -3,6 +3,7 @@ package com.example.demo.src.users;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.secret.Secret;
+import com.example.demo.src.posts.model.bookmark.PostBookmarkReq;
 import com.example.demo.src.users.model.*;
 import com.example.demo.src.users.model.login.PostUsersReq;
 import com.example.demo.src.users.model.login.PostUsersRes;
@@ -171,6 +172,95 @@ public class UsersService {
             }
 
         } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void userInfoPatch(PatchUserInfo patchUserInfo) throws BaseException{
+        String origin;
+        int userId = patchUserInfo.getUserId();
+        String password = patchUserInfo.getLastPassword();
+        try {
+            Users users = usersDAO.getPwd2(userId);
+
+            origin = new AES128(Secret.USER_INFO_PASSWORD_KEY).decrypt(users.getPassword());
+
+
+        }catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+        if( !origin.equals(password) ){
+            throw new BaseException(WRONG_PASSWORD);
+        }
+
+        try{
+            int result ;
+            if(patchUserInfo.getNewPassword() == null || patchUserInfo.getNewPassword() == ""){
+                result = usersDAO.userInfoPatchWork(patchUserInfo);
+            }else {
+                String Newpassword ;
+                try{
+                    //암호화
+                    Newpassword = new AES128(Secret.USER_INFO_PASSWORD_KEY).encrypt(patchUserInfo.getNewPassword());
+                } catch (Exception ignored) {
+                    throw new BaseException(PASSWORD_ENCRYPTION_ERROR);
+                }
+
+                result = usersDAO.userInfoPatchWorkNotNewPass(patchUserInfo,Newpassword);
+            }
+
+
+
+            if(result == 0){
+                throw new BaseException(MODIFY_FAIL_USERSINFOTATUS);
+            }
+
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+
+    public void userPIPatch(PatchUserPI patchUserPI) throws BaseException{
+
+
+        try{
+            int result ;
+
+
+            result = usersDAO.userPIPatch(patchUserPI);
+
+            if(result == 0){
+                throw new BaseException(MODIFY_FAIL_USERPISTATUS);
+            }
+
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int createReport(PostReport postReport)throws BaseException{
+        int reported = usersProvider.checkReport(postReport);
+
+        if( reported == 1){
+            throw new BaseException(POST_USERS_EXISTS_REPORT);
+        }
+
+        try{
+            Integer result = usersDAO.createReport(postReport);
+
+            if(result == null || result == 0 ){
+                throw new BaseException(INSERT_FAIL_REPORT);
+            }
+
+            if(usersProvider.diableCheck(postReport.getRecipeId()) >= 3){
+                usersDAO.disableRecipeTemp(postReport.getRecipeId());
+            }
+
+            return  result;
+        }catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
     }

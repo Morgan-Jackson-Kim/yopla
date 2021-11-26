@@ -72,6 +72,12 @@ public class PostsDAO {
 
 
 
+    public int deleteRecipe(DeleteRecipe deleteRecipe){
+        String deleteRecipQuery  = "update recipes,recipeDetails set recipes.status = 'disable', recipeDetails.status = 'disable'  where recipeDetails.recipeId = recipes.recipesIdx AND recipeId = ? ";
+        Object[] deleteRecipParams = new Object[]{ deleteRecipe.getRecipeId()};
+        return this.jdbcTemplate.update(deleteRecipQuery,deleteRecipParams);
+    }
+
     public int createBookmark(PostBookmarkReq postBookmarkReq){
         String createBookmarkQuery  = "insert into rBookmarks (userId , recipeId) VALUES(?,?)";
         Object[] createBookmarkParams = new Object[]{ postBookmarkReq.getUserId() , postBookmarkReq.getRecipeId()};
@@ -102,6 +108,15 @@ public class PostsDAO {
                 checkBookmarkParams);
     }
 
+
+    public int checkRecipeExist(DeleteRecipe deleteRecipe){
+        String checkRecipeQuery = "select exists(select status from recipes where status = 'active' AND recipesIdx = ? AND userId = ? )";
+        Object[] checkRecipeParams = new Object[]{deleteRecipe.getRecipeId(), deleteRecipe.getUserId()};
+        return this.jdbcTemplate.queryForObject(checkRecipeQuery,
+                int.class,
+                checkRecipeParams);
+    }
+
     public List<GetMainAdvertisesRes> getMainAds(){
         String getMainAdvertiseQuery = "select adIdx, adImagePath from advertisementsMain";
         return this.jdbcTemplate.query(getMainAdvertiseQuery,
@@ -112,7 +127,7 @@ public class PostsDAO {
     }
 
     public List<GetShortsRes> getShorts(int userId){
-        String getShortsQuery = "select recipesIdx,recipeName,recipeFrontImage,(select profileImage from users where recipes.userId = users.usersIdx)as usersPI ,(select userNickName from users where recipes.userId = users.usersIdx)as usersNN , hits,(select count(*)  from rBookmarks where recipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active') as bookmarkCount,(select (sum(scores)/count(*)) from reviews where reviews.recipeId = recipes.recipesIdx && reviews.status = 'active') as averageScore  , (select exists(select userId from rBookmarks where rBookmarks.userId = ? && rBookmarks.recipeId = recipes.recipesIdx && rBookmarks.status = 'active')) as bookmarked from recipes ORDER BY recipes.createdAt DESC limit 8";
+        String getShortsQuery = "select recipesIdx,recipeName,recipeFrontImage,(select profileImage from users where recipes.userId = users.usersIdx)as usersPI ,(select userNickName from users where recipes.userId = users.usersIdx)as usersNN , hits,(select count(*)  from rBookmarks where recipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active') as bookmarkCount,(select (sum(scores)/count(*)) from reviews where reviews.recipeId = recipes.recipesIdx && reviews.status = 'active') as averageScore  , (select exists(select userId from rBookmarks where rBookmarks.userId = ? && rBookmarks.recipeId = recipes.recipesIdx && rBookmarks.status = 'active')) as bookmarked from recipes join recipeDetails where recipesIdx = recipeDetails.recipeId AND recipeDetails.fileType = 'video' group by recipesIdx ORDER BY recipes.createdAt DESC limit 8";
         int getShortsParam = userId;
         return this.jdbcTemplate.query(getShortsQuery,
                 (rs,rowNum) -> new GetShortsRes(
@@ -147,6 +162,55 @@ public class PostsDAO {
 
     }
 
+    public List<GetShortsRes> getmoreShorts(int userId){
+        String getShortsQuery = " select recipesIdx,recipeName,recipeFrontImage,\n" +
+                " (select profileImage from users where recipes.userId = users.usersIdx)as usersPI ,\n" +
+                " (select userNickName from users where recipes.userId = users.usersIdx)as usersNN , hits,\n" +
+                " (select count(*)  from rBookmarks where recipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active') as bookmarkCount,\n" +
+                " (select (sum(scores)/count(*)) from reviews where reviews.recipeId = recipes.recipesIdx && reviews.status = 'active') as averageScore,\n" +
+                " (select exists(select userId from rBookmarks where rBookmarks.userId = ? && rBookmarks.recipeId = recipes.recipesIdx && rBookmarks.status = 'active')) as bookmarked \n" +
+                " from recipes join recipeDetails where recipesIdx = recipeDetails.recipeId AND recipeDetails.fileType = 'video' group by recipesIdx  order by recipes.createdAt desc";
+        Object[] getShortsParam = new Object[]{userId};
+        return this.jdbcTemplate.query(getShortsQuery,
+                (rs,rowNum) -> new GetShortsRes(
+                        rs.getInt("recipesIdx"),
+                        rs.getString("recipeName"),
+                        rs.getString("recipeFrontImage"),
+                        rs.getString("usersPI"),
+                        rs.getString("usersNN"),
+                        rs.getInt("hits"),
+                        rs.getInt("bookmarkCount"),
+                        rs.getFloat("averageScore"),
+                        rs.getBoolean("bookmarked")),
+                getShortsParam);
+
+    }
+
+    public List<GetHotsRes> getmoreHots(int userId){
+        String getShortsQuery = " select recipesIdx,recipeName,recipeFrontImage,\n" +
+                " (select profileImage from users where recipes.userId = users.usersIdx)as usersPI ,\n" +
+                " (select userNickName from users where recipes.userId = users.usersIdx)as usersNN , hits,\n" +
+                " (select count(*)  from rBookmarks where recipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active') as bookmarkCount,\n" +
+                " (select (sum(scores)/count(*)) from reviews where reviews.recipeId = recipes.recipesIdx && reviews.status = 'active') as averageScore,\n" +
+                " (select exists(select userId from rBookmarks where rBookmarks.userId = ? && rBookmarks.recipeId = recipes.recipesIdx && rBookmarks.status = 'active')) as bookmarked \n" +
+                " from recipes order by hits";
+        Object[] getShortsParam = new Object[]{userId};
+        return this.jdbcTemplate.query(getShortsQuery,
+                (rs,rowNum) -> new GetHotsRes(
+                        rs.getInt("recipesIdx"),
+                        rs.getString("recipeName"),
+                        rs.getString("recipeFrontImage"),
+                        rs.getString("usersPI"),
+                        rs.getString("usersNN"),
+                        rs.getInt("hits"),
+                        rs.getInt("bookmarkCount"),
+                        rs.getFloat("averageScore"),
+                        rs.getBoolean("bookmarked")),
+                getShortsParam);
+
+    }
+
+
     public List<GetRecommendRes> getRecommends(int userId){
         String getShortsQuery = "select recipesIdx,recipeName,recipeFrontImage,(select profileImage from users where recipes.userId = users.usersIdx)as usersPI ,(select userNickName from users where recipes.userId = users.usersIdx)as usersNN , hits,(select count(*)  from rBookmarks where recipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active') as bookmarkCount,(select (sum(scores)/count(*)) from reviews where reviews.recipeId = recipes.recipesIdx && reviews.status = 'active') as averageScore  , (select exists(select userId from rBookmarks where rBookmarks.userId = ? && rBookmarks.recipeId = recipes.recipesIdx && rBookmarks.status = 'active')) as bookmarked from recipes order by recipes.createdAt DESC limit 8";
         Object[] getShortsParam = new Object[]{userId};
@@ -166,7 +230,7 @@ public class PostsDAO {
     }
     // 대중 레시피 gets 들
     public List<GetShortsRes> getpubShorts(int userId){
-        String getShortsQuery = "select recipesIdx,recipeName,recipeFrontImage,(select profileImage from users where publicRecipes.userId = users.usersIdx)as usersPI ,(select userNickName from users where publicRecipes.userId = users.usersIdx)as usersNN , hits,(select count(*)  from rBookmarks where publicRecipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active') as bookmarkCount,(select (sum(scores)/count(*)) from reviews where reviews.recipeId = publicRecipes.recipesIdx && reviews.status = 'active') as averageScore  , (select exists(select userId from rBookmarks where rBookmarks.userId = ? && rBookmarks.recipeId = publicRecipes.recipesIdx && rBookmarks.status = 'active')) as bookmarked from publicRecipes ORDER BY publicRecipes.createdAt DESC limit 8";
+        String getShortsQuery = "select recipesIdx,recipeName,recipeFrontImage,(select profileImage from users where publicRecipes.userId = users.usersIdx)as usersPI ,(select userNickName from users where publicRecipes.userId = users.usersIdx)as usersNN , hits,(select count(*)  from rBookmarks where publicRecipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active') as bookmarkCount,(select (sum(scores)/count(*)) from reviews where reviews.recipeId = publicRecipes.recipesIdx && reviews.status = 'active') as averageScore  , (select exists(select userId from rBookmarks where rBookmarks.userId = ? && rBookmarks.recipeId = publicRecipes.recipesIdx && rBookmarks.status = 'active')) as bookmarked from publicRecipes  join publicRecipeDetails where recipesIdx = publicRecipeDetails.recipeId AND publicRecipeDetails.fileType = 'video' group by recipesIdx ORDER BY publicRecipes.createdAt DESC limit 8";
         int getShortsParam = userId;
         return this.jdbcTemplate.query(getShortsQuery,
                 (rs,rowNum) -> new GetShortsRes(
@@ -218,6 +282,55 @@ public class PostsDAO {
                 getShortsParam);
 
     }
+
+    public List<GetShortsRes> getPublicMoreShorts(int userId){
+        String getShortsQuery = " select recipesIdx,recipeName,recipeFrontImage,\n" +
+                " (select profileImage from users where publicRecipes.userId = users.usersIdx)as usersPI ,\n" +
+                " (select userNickName from users where publicRecipes.userId = users.usersIdx)as usersNN , hits,\n" +
+                " (select count(*)  from rBookmarks where publicRecipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active') as bookmarkCount,\n" +
+                " (select (sum(scores)/count(*)) from reviews where reviews.recipeId = publicRecipes.recipesIdx && reviews.status = 'active') as averageScore,\n" +
+                " (select exists(select userId from rBookmarks where rBookmarks.userId = ? && rBookmarks.recipeId = publicRecipes.recipesIdx && rBookmarks.status = 'active')) as bookmarked \n" +
+                " from publicRecipes join publicRecipeDetails where recipesIdx = publicRecipeDetails.recipeId AND publicRecipeDetails.fileType = 'video' group by recipesIdx  order by publicRecipes.createdAt desc";
+        Object[] getShortsParam = new Object[]{userId};
+        return this.jdbcTemplate.query(getShortsQuery,
+                (rs,rowNum) -> new GetShortsRes(
+                        rs.getInt("recipesIdx"),
+                        rs.getString("recipeName"),
+                        rs.getString("recipeFrontImage"),
+                        rs.getString("usersPI"),
+                        rs.getString("usersNN"),
+                        rs.getInt("hits"),
+                        rs.getInt("bookmarkCount"),
+                        rs.getFloat("averageScore"),
+                        rs.getBoolean("bookmarked")),
+                getShortsParam);
+
+    }
+
+    public List<GetHotsRes> getPublicMoreHots(int userId){
+        String getShortsQuery = " select recipesIdx,recipeName,recipeFrontImage,\n" +
+                " (select profileImage from users where publicRecipes.userId = users.usersIdx)as usersPI ,\n" +
+                " (select userNickName from users where publicRecipes.userId = users.usersIdx)as usersNN , hits,\n" +
+                " (select count(*)  from rBookmarks where publicRecipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active') as bookmarkCount,\n" +
+                " (select (sum(scores)/count(*)) from reviews where reviews.recipeId = publicRecipes.recipesIdx && reviews.status = 'active') as averageScore,\n" +
+                " (select exists(select userId from rBookmarks where rBookmarks.userId = ? && rBookmarks.recipeId = publicRecipes.recipesIdx && rBookmarks.status = 'active')) as bookmarked \n" +
+                " from publicRecipes order by hits";
+        Object[] getShortsParam = new Object[]{userId};
+        return this.jdbcTemplate.query(getShortsQuery,
+                (rs,rowNum) -> new GetHotsRes(
+                        rs.getInt("recipesIdx"),
+                        rs.getString("recipeName"),
+                        rs.getString("recipeFrontImage"),
+                        rs.getString("usersPI"),
+                        rs.getString("usersNN"),
+                        rs.getInt("hits"),
+                        rs.getInt("bookmarkCount"),
+                        rs.getFloat("averageScore"),
+                        rs.getBoolean("bookmarked")),
+                getShortsParam);
+
+    }
+
 
 
     // 대중레시피 업로드 전용
@@ -393,6 +506,9 @@ public class PostsDAO {
     }
 
 
+
+    //대중레시피 전용
+
     public List<GetRecipeDetailsPages> getpublicRecipeDPs(int recipeId){
         String getShortsQuery = "select recipeDetailIdx,title,ingredients,contents,recipeFiles,fileType from publicRecipeDetails where recipeId = ? ";
         Object[] getShortsParam = new Object[]{recipeId};
@@ -409,7 +525,7 @@ public class PostsDAO {
     }
 
     public GetRecipeFrontPage getpublicRecipeFP(int userId ,int recipeId){
-        String getShortsQuery = "select recipesIdx,recipeName,recipeFrontImage,(select profileImage from users where publicRecipes.userId = users.usersIdx)as usersPI ,(select userNickName from users where recipes.userId = users.usersIdx)as usersNN , hits,(select count(*)  from rBookmarks where publicRecipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active') as bookmarkCount,recipes.time,(select group_concat(tagName SEPARATOR ',')  from tags join taglinker where tags.tagsIdx = taglinker.tagId && taglinker.recipeId = publicRecipes.recipesIdx)  as tags , (select exists(select userId from rBookmarks where rBookmarks.userId = ? && rBookmarks.recipeId = publicRecipes.recipesIdx && rBookmarks.status = 'active')) as bookmarked from publicRecipes where publicRecipes.recipesIdx = ?";
+        String getShortsQuery = "select recipesIdx,recipeName,recipeFrontImage,(select profileImage from users where publicRecipes.userId = users.usersIdx)as usersPI ,(select userNickName from users where publicRecipes.userId = users.usersIdx)as usersNN , hits,(select count(*)  from rBookmarks where publicRecipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active') as bookmarkCount,publicRecipes.time,(select group_concat(tagName SEPARATOR ',')  from tags join taglinker where tags.tagsIdx = taglinker.tagId && taglinker.recipeId = publicRecipes.recipesIdx)  as tags , (select exists(select userId from rBookmarks where rBookmarks.userId = ? && rBookmarks.recipeId = publicRecipes.recipesIdx && rBookmarks.status = 'active')) as bookmarked from publicRecipes where publicRecipes.recipesIdx = ?";
         Object[] getShortsParam = new Object[]{userId ,recipeId};
         return this.jdbcTemplate.queryForObject(getShortsQuery,
                 (rs,rowNum) -> new GetRecipeFrontPage(
@@ -420,7 +536,7 @@ public class PostsDAO {
                         rs.getString("usersNN"),
                         rs.getInt("hits"),
                         rs.getInt("bookmarkCount"),
-                        rs.getString("recipes.time"),
+                        rs.getString("publicRecipes.time"),
                         rs.getString("tags"),
                         rs.getBoolean("bookmarked")),
                 getShortsParam);
@@ -432,6 +548,7 @@ public class PostsDAO {
 
         this.jdbcTemplate.update(addHitCountsQuery,addHitCountParams);
     }
+    // 대중 레시피 전용 끝
 
 
 }

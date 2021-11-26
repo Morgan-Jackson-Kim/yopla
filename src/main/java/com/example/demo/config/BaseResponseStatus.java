@@ -37,6 +37,8 @@ public enum BaseResponseStatus {
     POST_USERS_EMPTY_PHONENUMBER(false, 2023,"휴대전화 번호를 입력해 주세요."),
     POST_USERS_EMPTY_VERIFYNUMBER(false,2024,"인증번호를 입력해 주세요."),
     POST_USERS_EXISTS_BOOKMARK(false,2027,"이미 존재하는 북마크 입니다"),
+    POST_USERS_EXISTS_NON_EXIST_RECIPE(false,2033," 존재하지 않는 레시피 입니다"),
+    POST_USERS_EXISTS_REPORT(false,2034,"이미 신고한 개시물 입니다"),
 
     // POST /products
     POST_PRODUCTS_EMPTY_PRODUCTID(false,2025,"상품ID를 입력해 주세요."),
@@ -72,6 +74,8 @@ public enum BaseResponseStatus {
     INSERT_FAIL_REVIEW(false,3018,"리뷰 추가 실패"),
     DISABLED_USER(false,3019,"회원탈퇴한 계정"),
     WRONG_PASSWORD(false,3020,"비밀번호가 틀렸습니다"),
+    INSERT_FAIL_REPORT(false,3021,"신고 실패"),
+
 
 
 
@@ -93,6 +97,10 @@ public enum BaseResponseStatus {
     MODIFY_FAIL_BOOKMARK(false,4015,"북마크 해제 실패"),
 
     MODIFY_FAIL_USERSTATUS(false,4016,"회원탈퇴 실패"),
+    MODIFY_FAIL_USERSINFOTATUS(false,4018,"회원정보 수정 실패"),
+    MODIFY_FAIL_USERPISTATUS(false,4019,"회원프로필 수정 실패"),
+
+    DELETE_FAIL_RECIPE(false,4020,"레시피 삭제 실패"),
 
 
 

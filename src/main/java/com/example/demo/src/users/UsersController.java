@@ -2,6 +2,7 @@ package com.example.demo.src.users;
 
 
 import com.example.demo.config.BaseResponse2;
+import com.example.demo.src.posts.model.bookmark.PostBookmarkReq;
 import com.example.demo.src.users.model.login.PostLoginReq;
 import com.example.demo.src.users.model.login.PostLoginRes;
 import com.example.demo.src.users.model.login.PostUsersReq;
@@ -450,6 +451,129 @@ public class UsersController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
+
+    @ResponseBody
+    @GetMapping("/{userId}/myInfo")
+    public BaseResponse<GetUserInfo> yoplaUserInfoPage(@PathVariable("userId") int userId){
+        if(userId == 0){
+            return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
+        }
+        try{
+            if(userId != 0){
+
+                int userIdxByJwt = jwtService.getUserIdx();
+
+                if(userId != userIdxByJwt){
+                    return new BaseResponse<>(INVALID_USER_JWT);
+                }
+            }
+
+            GetUserInfo getUserInfo = usersProvider.getYoplaUserInfo(userId);
+
+            return new BaseResponse<>(getUserInfo);
+
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    @ResponseBody
+    @PatchMapping("/myInfo/status")
+    public BaseResponse<String> userInfoEdit (@RequestBody PatchUserInfo patchUserInfo){
+        int userId = patchUserInfo.getUserId();
+        if(userId == 0){
+            return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
+        }
+        try{
+
+            if(userId != 0){
+
+                int userIdxByJwt = jwtService.getUserIdx();
+
+                if(userId != userIdxByJwt){
+                    return new BaseResponse<>(INVALID_USER_JWT);
+                }
+            }
+
+
+            usersService.userInfoPatch(patchUserInfo);
+            String result = "edited";
+
+            return new BaseResponse<>(result);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    @ResponseBody
+    @PatchMapping("/myInfo/pi")
+    public BaseResponse<String> userPIEdit (@RequestBody PatchUserPI patchUserPI){
+        int userId = patchUserPI.getUserId();
+        if(userId == 0){
+            return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
+        }
+        try{
+
+            if(userId != 0){
+
+                int userIdxByJwt = jwtService.getUserIdx();
+
+                if(userId != userIdxByJwt){
+                    return new BaseResponse<>(INVALID_USER_JWT);
+                }
+            }
+
+
+            usersService.userPIPatch(patchUserPI);
+            String result = "edited";
+
+            return new BaseResponse<>(result);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    @ResponseBody
+    @PostMapping("/report")
+    public BaseResponse<Integer> bookmarking(@RequestBody PostReport postReport){
+        int userId = postReport.getUserId();
+        int recipeId = postReport.getRecipeId();
+        if(userId == 0){
+            return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
+        }
+
+        try {
+
+
+
+            if(userId != 0){
+
+                int userIdxByJwt = jwtService.getUserIdx();
+
+                if(userId != userIdxByJwt){
+                    return new BaseResponse<>(INVALID_USER_JWT);
+                }
+            }
+
+            if(recipeId == 0){
+                return new BaseResponse<>(POST_RECIPE_ID);
+            }
+
+            int reuslt;
+            reuslt = usersService.createReport(postReport);
+
+
+            return new BaseResponse<>(reuslt);
+
+        }catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+
 
 
 }

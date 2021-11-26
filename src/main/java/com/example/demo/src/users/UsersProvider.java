@@ -4,6 +4,7 @@ import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
 import com.example.demo.config.secret.Secret;
 
+import com.example.demo.src.posts.model.bookmark.PostBookmarkReq;
 import com.example.demo.src.users.model.*;
 import com.example.demo.src.users.model.login.PostLoginReq;
 import com.example.demo.src.users.model.login.PostLoginRes;
@@ -101,6 +102,18 @@ public class UsersProvider {
     }
 
 
+    public GetUserInfo getYoplaUserInfo(int userId) throws BaseException{
+        try{
+            GetUserInfo getUserInfo = usersDAO.getYoplaUserInfo(userId);
+
+            return getUserInfo;
+
+        }catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
     //마이컬리 데이터 가져오기
     public GetMykurlyRes getUserMykurlyInfo(int userId) throws BaseException{
         try{
@@ -112,6 +125,8 @@ public class UsersProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+
 
     public CartUserInfo getcartuserInfo(int userId) throws BaseException{
         try {
@@ -202,6 +217,27 @@ public class UsersProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public int checkReport(PostReport postReport) throws BaseException{
+        try{
+            return usersDAO.checkReports(postReport.getUserId(),postReport.getRecipeId());
+
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+
+    public int diableCheck(int recipeId) throws BaseException{
+        try{
+            return usersDAO.checkDisableReports(recipeId);
+
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
 
 //    public List<PaidResponse> getPaidProducts(int userId, int size) throws BaseException{
 //        try {

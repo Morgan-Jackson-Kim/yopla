@@ -44,12 +44,23 @@ public class PostsProvider {
         }
     }
 
+
+
+    public int checkRecipe(DeleteRecipe deleteRecipe) throws BaseException{
+        try{
+            return postsDAO.checkRecipeExist(deleteRecipe);
+
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
     public List<GetMainAdvertisesRes> getMainAds()throws BaseException{
         try {
             List<GetMainAdvertisesRes> getMainAdvertisesRes = postsDAO.getMainAds();
             return  getMainAdvertisesRes;
         }catch (Exception exception) {
-            throw new BaseException(TEST_ERROR1);
+            throw new BaseException(DATABASE_ERROR);
         }
     }
 
@@ -59,7 +70,16 @@ public class PostsProvider {
             List<GetShortsRes> getShortsRes = postsDAO.getShorts(userId);
             return  getShortsRes;
         }catch (Exception exception) {
-            throw new BaseException(TEST_ERROR2);
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public List<GetShortsRes> getmoreShorts(int userId)throws BaseException{
+        try {
+            List<GetShortsRes> getShortsRes = postsDAO.getmoreShorts(userId);
+            return  getShortsRes;
+        }catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
         }
     }
 
@@ -68,16 +88,26 @@ public class PostsProvider {
             List<GetHotsRes> getHotsRes = postsDAO.getHots(userId);
             return getHotsRes ;
         }catch (Exception exception) {
-            throw new BaseException(TEST_ERROR3);
+            throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public List<GetHotsRes> getmoreHots(int userId)throws BaseException{
+        try {
+            List<GetHotsRes> getHotsRes = postsDAO.getmoreHots(userId);
+            return getHotsRes ;
+        }catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
 
     public List<GetRecommendRes> getRecommends(int userId)throws BaseException{
         try {
             List<GetRecommendRes> getRecommendRes = postsDAO.getRecommends(userId);
             return  getRecommendRes;
         }catch (Exception exception) {
-            throw new BaseException(TEST_ERROR4);
+            throw new BaseException(DATABASE_ERROR);
         }
     }
 
@@ -108,6 +138,26 @@ public class PostsProvider {
             throw new BaseException(TEST_ERROR4);
         }
     }
+
+    public List<GetShortsRes> getPublicMoreShorts(int userId)throws BaseException{
+        try {
+            List<GetShortsRes> getShortsRes = postsDAO.getPublicMoreShorts(userId);
+            return  getShortsRes;
+        }catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public List<GetHotsRes> getPublicMoreHots(int userId)throws BaseException{
+        try {
+            List<GetHotsRes> getHotsRes = postsDAO.getPublicMoreHots(userId);
+            return getHotsRes ;
+        }catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
     // 대중 끝
 
 
