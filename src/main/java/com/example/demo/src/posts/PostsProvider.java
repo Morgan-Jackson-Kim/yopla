@@ -199,8 +199,34 @@ public class PostsProvider {
     public List<GetRecipeDetailsPages> getRecipeDInfo(int recipeId) throws BaseException{
         try {
 
-
             List<GetRecipeDetailsPages> getRecipeDetailsPages = postsDAO.getRecipeDPs(recipeId);
+
+            return getRecipeDetailsPages;
+        }catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+    // 대중 레시피 전용
+
+    public GetRecipeFrontPage getpublicRecipeFInfo(int userId,int recipeId) throws BaseException{
+        try {
+
+            postsDAO.addpublicHitCount(recipeId);
+
+            GetRecipeFrontPage getRecipeFrontPage = postsDAO.getpublicRecipeFP(userId,recipeId);
+
+            return getRecipeFrontPage;
+        }catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public List<GetRecipeDetailsPages> getpublicRecipeDInfo(int recipeId) throws BaseException{
+        try {
+
+            List<GetRecipeDetailsPages> getRecipeDetailsPages = postsDAO.getpublicRecipeDPs(recipeId);
 
             return getRecipeDetailsPages;
         }catch (Exception exception) {

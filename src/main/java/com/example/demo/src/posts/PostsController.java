@@ -478,6 +478,29 @@ public class PostsController {
         }
     }
 
+    @ResponseBody
+    @GetMapping("{userId}/publicRecipes/{recipeId}")
+    public BaseResponse2<GetRecipeFrontPage,List<GetRecipeDetailsPages>> getpublicRecipeDetails (@PathVariable("userId") int userId,@PathVariable("recipeId") int recipeId ){
+        try {
+            if(userId == 0){
+                return new BaseResponse2<>(POST_PRODUCTS_EMPTY_USERID);
+            }
+
+            if(recipeId == 0){
+                return new BaseResponse2<>(POST_PRODUCTS_EMPTY_RECIPEID);
+            }
+
+            GetRecipeFrontPage getRecipeFrontPage =postsProvider.getpublicRecipeFInfo(userId,recipeId);
+            List<GetRecipeDetailsPages> getRecipeDetailsPages =postsProvider.getpublicRecipeDInfo(recipeId);
+//            getRecipePage = postsProvider.getRecipeInfo(userId ,recipeId);
+            return new BaseResponse2<>(getRecipeFrontPage,getRecipeDetailsPages);
+
+
+        }catch (BaseException exception){
+            return new BaseResponse2<>((exception.getStatus()));
+        }
+    }
+
 
     @ResponseBody
     @GetMapping("/{userId}/category/{category}")
