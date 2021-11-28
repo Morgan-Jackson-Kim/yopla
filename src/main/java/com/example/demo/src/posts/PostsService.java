@@ -119,11 +119,13 @@ public class PostsService {
 
         }
 
-        public int PatchRecipes(createNewRecipe request) throws BaseException{
+        public int PatchRecipes(PatchRecipe request) throws BaseException{
                 try {
                         int recipeId ;
 
-                        recipeId = postsDAO.createRecipes(request);
+                        postsDAO.patchRecipes(request);
+
+                        recipeId = request.getRecipeId();
 
                         for(int i = 0 ; i < request.getTags().size(); i ++){
                                 String nTageName = request.getTags().get(i);
@@ -147,7 +149,12 @@ public class PostsService {
         }
 
         public String PatchRecipesDetails(RecipeDetailsList request) throws BaseException{
+
                 int recipeId = request.getRecipeId();
+
+                postsDAO.deleteRecipeDetails(recipeId);
+
+
                 try {
                         String result ;
                         request.getNewRecipeDetails().stream().forEach(newRecipeDetails -> {
@@ -157,7 +164,7 @@ public class PostsService {
                                 String fileUrl = newRecipeDetails.getDetailFileUrl();
                                 String fileType = newRecipeDetails.getFileType();
 
-                                postsDAO.createRecipeDetails(recipeId,title,ingredients,content,fileUrl,fileType);
+                                postsDAO.PatchNewRecipeDetails(recipeId,title,ingredients,content,fileUrl,fileType);
                         });
 
                         result = "success";

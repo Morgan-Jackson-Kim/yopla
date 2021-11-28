@@ -92,59 +92,59 @@ public class PostsController {
     }
 
     //레시피 수정
-//    @ResponseBody
-//    @PatchMapping("/recipes/patchFront")
-//    public BaseResponse<Integer> patchRecipes(@RequestBody createNewRecipe request){
-//        int userId = request.getUserId();
-//        if(userId == 0){
-//            return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
-//        }
-//        try{
-//
-//            if(userId != 0){
-//
-//                int userIdxByJwt = jwtService.getUserIdx();
-//
-//                if(userId != userIdxByJwt){
-//                    return new BaseResponse<>(INVALID_USER_JWT);
-//                }
-//            }
-//
-//            Integer recipeId = 0;
-//
-//            recipeId = postsService.CreateNewRecipes(request);
-//
-//
-//            return new BaseResponse<>(recipeId);
-//
-//        } catch (BaseException exception) {
-//            return new BaseResponse<>((exception.getStatus()));
-//        }
-//    }
-//
-//    @ResponseBody
-//    @PatchMapping("/recipes/patchDetails")
-//    public BaseResponse<String> patchDRecipes(@RequestBody RecipeDetailsList request){
-//        try{
-//
-//            String result ;
-//
-//            if (request.getRecipeId() == 0){
-//                return new BaseResponse<>(POST_RECIPE_ID);
-//            }
-//
-//            if(request.getNewRecipeDetails() ==null){
-//                return new BaseResponse<>(POST_RECIPE_DETAILS);
-//            }
-//
-//            result =postsService.addRecipeDetails(request);
-//
-//            return new BaseResponse<>(result);
-//
-//        } catch (BaseException exception) {
-//            return new BaseResponse<>((exception.getStatus()));
-//        }
-//    }
+    @ResponseBody
+    @PatchMapping("/recipes/patchFront")
+    public BaseResponse<Integer> patchRecipes(@RequestBody PatchRecipe request){
+        int userId = request.getUserId();
+        if(userId == 0){
+            return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
+        }
+        try{
+
+            if(userId != 0){
+
+                int userIdxByJwt = jwtService.getUserIdx();
+
+                if(userId != userIdxByJwt){
+                    return new BaseResponse<>(INVALID_USER_JWT);
+                }
+            }
+
+            Integer recipeId = 0;
+
+            recipeId = postsService.PatchRecipes(request);
+
+
+            return new BaseResponse<>(recipeId);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    @ResponseBody
+    @PostMapping("/recipes/patchDetails")
+    public BaseResponse<String> patchDRecipes(@RequestBody RecipeDetailsList request){
+        try{
+
+            String result ;
+
+            if (request.getRecipeId() == 0){
+                return new BaseResponse<>(POST_RECIPE_ID);
+            }
+
+            if(request.getNewRecipeDetails() ==null){
+                return new BaseResponse<>(POST_RECIPE_DETAILS);
+            }
+
+            result =postsService.PatchRecipesDetails(request);
+
+            return new BaseResponse<>(result);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
 
     @ResponseBody
     @PatchMapping("/recipes/status")
