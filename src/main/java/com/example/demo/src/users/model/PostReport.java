@@ -9,5 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PostReport {
     private int userId;
-    private int recipeId;
+    private int targetId;
+    private String type;
 }

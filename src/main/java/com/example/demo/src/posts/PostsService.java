@@ -276,7 +276,7 @@ public class PostsService {
 
         public int postProductReview(PostProductReviewReq postProductReviewReq)throws BaseException{
                 try{
-                        if(postsProvider.checkAbleWriteReview(postProductReviewReq.getUserId(),postProductReviewReq.getRecipeId()) != 0){
+                        if(postsProvider.checkAbleWriteReview(postProductReviewReq.getUserId(),postProductReviewReq.getRecipeId(),postProductReviewReq.getType()) != 0){
                                 throw new BaseException(POST_REVIEWS_EXIST);
                         }
 
@@ -294,7 +294,6 @@ public class PostsService {
 
         public int editReview(EditReviewReq editReviewReq)throws BaseException{
                 try{
-
 
                         int result = postsDAO.editReview(editReviewReq);
                         if(result == 0){

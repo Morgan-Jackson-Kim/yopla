@@ -3,10 +3,7 @@ package com.example.demo.src.users;
 
 import com.example.demo.config.BaseResponse2;
 import com.example.demo.src.posts.model.bookmark.PostBookmarkReq;
-import com.example.demo.src.users.model.login.PostLoginReq;
-import com.example.demo.src.users.model.login.PostLoginRes;
-import com.example.demo.src.users.model.login.PostUsersReq;
-import com.example.demo.src.users.model.login.PostUsersRes;
+import com.example.demo.src.users.model.login.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.example.demo.config.BaseException;
@@ -80,7 +77,8 @@ public class UsersController {
         try{
             PostUsersRes postUsersRes;
 
-            if(postUsersReq.getProfileImageUrl() == null){
+            if(postUsersReq.getProfileImageUrl() == null || postUsersReq.getProfileImageUrl() == "" ){
+                postUsersReq.setProfileImageUrl(null);
                 postUsersRes = usersService.createUser(postUsersReq);
             }else {
                 postUsersRes = usersService.createUserwithPI(postUsersReq);
@@ -540,9 +538,12 @@ public class UsersController {
     @PostMapping("/report")
     public BaseResponse<Integer> bookmarking(@RequestBody PostReport postReport){
         int userId = postReport.getUserId();
-        int recipeId = postReport.getRecipeId();
+        int targetId = postReport.getTargetId();
         if(userId == 0){
             return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
+        }
+        if(targetId == 0){
+            return new BaseResponse<>(POST_TARGET_ID);
         }
 
         try {
@@ -558,9 +559,7 @@ public class UsersController {
                 }
             }
 
-            if(recipeId == 0){
-                return new BaseResponse<>(POST_RECIPE_ID);
-            }
+
 
             int reuslt;
             reuslt = usersService.createReport(postReport);
@@ -572,6 +571,27 @@ public class UsersController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
+
+    @ResponseBody
+    @PostMapping("/findpassword")
+    public BaseResponse<String> findpassword (@RequestBody NewPassword newPassword){
+        if(newPassword.getEmail() == null){
+            return new BaseResponse<>(POST_USERS_EMPTY_EMAIL);
+        }
+        try {
+
+            usersService.createNewPassword(newPassword);
+
+            String result = "sent";
+
+            return new BaseResponse<>(result);
+
+        }catch(BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+
+    }
+
 
 
 

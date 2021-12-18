@@ -6,6 +6,7 @@ import com.example.demo.config.secret.Secret;
 
 import com.example.demo.src.posts.model.bookmark.PostBookmarkReq;
 import com.example.demo.src.users.model.*;
+import com.example.demo.src.users.model.login.NewPassword;
 import com.example.demo.src.users.model.login.PostLoginReq;
 import com.example.demo.src.users.model.login.PostLoginRes;
 import com.example.demo.utils.AES128;
@@ -220,7 +221,15 @@ public class UsersProvider {
 
     public int checkReport(PostReport postReport) throws BaseException{
         try{
-            return usersDAO.checkReports(postReport.getUserId(),postReport.getRecipeId());
+            return usersDAO.checkReports(postReport.getUserId(),postReport.getTargetId());
+
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+    public int checkReviewReport(PostReport postReport) throws BaseException{
+        try{
+            return usersDAO.checkReviewReports(postReport.getUserId(),postReport.getTargetId());
 
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
@@ -229,11 +238,64 @@ public class UsersProvider {
 
 
 
-    public int diableCheck(int recipeId) throws BaseException{
+    public int checkMyRecipe(PostReport postReport) throws BaseException{
         try{
-            return usersDAO.checkDisableReports(recipeId);
+            return usersDAO.checkMineRecipe(postReport.getUserId(),postReport.getTargetId());
 
         } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+    public int checkMyReview(PostReport postReport) throws BaseException{
+        try{
+            return usersDAO.checkMineReview(postReport.getUserId(),postReport.getTargetId());
+
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+
+    public int diableCheck(int targetId) throws BaseException{
+        try{
+            return usersDAO.checkDisableReports(targetId);
+
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int diableReviewCheck(int targetId) throws BaseException{
+        try{
+            return usersDAO.checkReviewDisableReports(targetId);
+
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int checkAvailableNP(String email , String phoneNumber) throws BaseException{
+        try {
+            return usersDAO.checkAvailNP(email,phoneNumber);
+        }catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int checkAvailableNP2(String email ) throws BaseException{
+        try {
+            return usersDAO.checkAvailNP2(email);
+        }catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+    public int checkPN(String phoneNumber) throws BaseException{
+        try {
+            return usersDAO.checkPN(phoneNumber);
+        }catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
     }

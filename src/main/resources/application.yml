@@ -12,3 +12,16 @@ spring:
     password: 0519967ab # 변경해주세요
     driver-class-name: com.mysql.cj.jdbc.Driver # mysql 8버전
     # driver-class-name: com.mysql.jdbc.Driver # mysql 5버전
+
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username:  morgankim1878@gmail.com
+    password:  pwzumebntnuakeok
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true

@@ -35,23 +35,28 @@ public enum BaseResponseStatus {
     POST_USERS_EMPTY_LOGINID(false, 2021, "로그인 아이디를 입력해 주세요."),
     POST_USERS_EXISTS_LOGINID(false, 2022,"중복된 아이디 입니다."),
     POST_USERS_EMPTY_PHONENUMBER(false, 2023,"휴대전화 번호를 입력해 주세요."),
+    POST_USERS_EXISTS_PHONENUMBER(false, 2041,"이미 존재하는 전화번호 입니다"),
     POST_USERS_EMPTY_VERIFYNUMBER(false,2024,"인증번호를 입력해 주세요."),
     POST_USERS_EXISTS_BOOKMARK(false,2027,"이미 존재하는 북마크 입니다"),
     POST_USERS_EXISTS_NON_EXIST_RECIPE(false,2033," 존재하지 않는 레시피 입니다"),
-    POST_USERS_EXISTS_REPORT(false,2034,"이미 신고한 개시물 입니다"),
+    POST_USERS_EXISTS_REPORT(false,2034,"이미 신고한 게시물 입니다"),
+    POST_USERS_EXISTS_PHONENUMBER_AND_EMAIL(false, 2040,"이미 존재하는 이메일과 휴대번호입니다."),
 
     // POST /products
     POST_PRODUCTS_EMPTY_PRODUCTID(false,2025,"상품ID를 입력해 주세요."),
     POST_PRODUCTS_EMPTY_RECIPEID(false,2031,"레시피ID를 입력해 주세요."),
+    POST_PRODUCTS_EMPTY_REVIEWIDX(false,2035,"리뷰ID를 입력해 주세요."),
     POST_PRODUCTS_EMPTY_USERID(false,2026,"유저ID를 입력해 주세요."),
     POST_REVIEWS_DISABLE(false,2027,"리뷰를 쓸 자격이 없습니다."),
     POST_INPUT_SEARCH(false,2028,"검색어를 입력해 주세요"),
-    POST_INPUT_CATEGORY(false,2033,"카테고리를 입력해 주세요"),
+    POST_INPUT_CATEGORY(false,2036,"카테고리를 입력해 주세요"),
 
     POST_RECIPE_DETAILS(false,2029,"레시피 세부사항이 비었습니다."),
 
     POST_RECIPE_ID(false,2030,"레시피 아이디를 입력하시오."),
+    POST_TARGET_ID(false,2042,"신고 대상 게시물 및 리뷰 id를 입력하시오."),
     POST_REVIEWS_EXIST(false,2032,"이미 리뷰를 작성했습니다."),
+    POST_USERS_SELF_REPORT(false,2044,"자기 자신을 신고할 수 없습니다."),
 
 
 
@@ -75,6 +80,8 @@ public enum BaseResponseStatus {
     DISABLED_USER(false,3019,"회원탈퇴한 계정"),
     WRONG_PASSWORD(false,3020,"비밀번호가 틀렸습니다"),
     INSERT_FAIL_REPORT(false,3021,"신고 실패"),
+    FAILED_TO_CHECKEMAIL_OR_PHONENUMBER(false,3022,"이메일과 전화번호가 일치하지 않거나 존재하지 않습니다."),
+
 
 
 

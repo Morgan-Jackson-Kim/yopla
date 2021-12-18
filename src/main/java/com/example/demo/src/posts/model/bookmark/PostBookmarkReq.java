@@ -10,4 +10,5 @@ import lombok.Setter;
 public class PostBookmarkReq {
     private int userId;
     private int recipeId;
+    private String type;
 }

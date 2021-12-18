@@ -9,7 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class EditReviewReq {
     private int userId;
-    private int recipeId;
+    private int reviewsIdx;
     private String content;
     private Float point;
     private String status;

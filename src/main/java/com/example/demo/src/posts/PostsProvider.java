@@ -37,7 +37,7 @@ public class PostsProvider {
 
     public int checkBookmark(PostBookmarkReq postBookmarkReq) throws BaseException{
         try{
-            return postsDAO.checkBookmarks(postBookmarkReq.getUserId(),postBookmarkReq.getRecipeId());
+            return postsDAO.checkBookmarks(postBookmarkReq.getUserId(),postBookmarkReq.getRecipeId(),postBookmarkReq.getType());
 
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
@@ -157,6 +157,15 @@ public class PostsProvider {
         }
     }
 
+    public List<GetRecommendRes> getPublicMoreRecommends(int userId)throws BaseException{
+        try {
+            List<GetRecommendRes> getRecommendRes = postsDAO.getPublicMoreRecoomend(userId);
+            return getRecommendRes ;
+        }catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
 
     // 대중 끝
 
@@ -195,9 +204,9 @@ public class PostsProvider {
         }
     }
 
-    public int checkAbleWriteReview(int userId, int recipeId)throws BaseException{
+    public int checkAbleWriteReview(int userId, int recipeId,String type)throws BaseException{
         try{
-            return postsDAO.checkAbleWriteReview(userId,recipeId);
+            return postsDAO.checkAbleWriteReview(userId,recipeId,type);
 
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
@@ -208,6 +217,17 @@ public class PostsProvider {
         try {
 
             List<GetReviews> getReviews  = postsDAO.getReviews(productId);
+
+            return  getReviews;
+        }catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public List<GetReviews> getpublicReviewList(int productId) throws BaseException{
+        try {
+
+            List<GetReviews> getReviews  = postsDAO.getpublicReviews(productId);
 
             return  getReviews;
         }catch (Exception exception) {

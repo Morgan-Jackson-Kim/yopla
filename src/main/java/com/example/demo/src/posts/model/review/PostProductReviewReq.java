@@ -12,4 +12,5 @@ public class PostProductReviewReq {
     private int recipeId;
     private String content;
     private Float point;
+    private String type;
 }

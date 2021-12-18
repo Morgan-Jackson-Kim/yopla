@@ -16,4 +16,5 @@ public class GetBookmarkList {
     private String category;
     private float averageScore;
     private int bookmarkCount;
+    private String type;
 }

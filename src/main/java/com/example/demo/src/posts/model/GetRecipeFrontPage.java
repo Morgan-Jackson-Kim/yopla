@@ -16,6 +16,7 @@ public class GetRecipeFrontPage {
     private int hits;
     private int bookmarkCount;
     private String times;
+    private String category;
     private String tags;
     private Boolean bookmarked;
 }

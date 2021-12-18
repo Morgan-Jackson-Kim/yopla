@@ -421,6 +421,32 @@ public class PostsController {
     }
 
 
+    @ResponseBody
+    @GetMapping("/{userId}/publicRecipes/recommends")
+    public BaseResponse<List<GetRecommendRes>> getpublicRecipesRecipesRecomeends (@PathVariable("userId") Integer userId){
+        if(userId == 0){
+            return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
+        }
+        try {
+
+            if(userId != 0){
+
+                int userIdxByJwt = jwtService.getUserIdx();
+
+                if(userId != userIdxByJwt){
+                    return new BaseResponse<>(INVALID_USER_JWT);
+                }
+            }
+
+            List<GetRecommendRes> getRecommendRes = postsProvider.getPublicMoreRecommends(userId);
+
+
+            return new BaseResponse<>(getRecommendRes);
+        }catch (BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
     // 대중레시피 업로드 전용
     @ResponseBody
     @PostMapping("/public/recipes")
@@ -570,12 +596,12 @@ public class PostsController {
     @PatchMapping("/recipes/reviews/patch")
     public BaseResponse<String> editReview(@RequestBody EditReviewReq editReviewReq){
         int userId = editReviewReq.getUserId();
-        int productId = editReviewReq.getRecipeId();
+        int productId = editReviewReq.getReviewsIdx();
         if(userId == 0){
             return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
         }
         if (productId == 0) {
-            return new BaseResponse<>(POST_PRODUCTS_EMPTY_RECIPEID);
+            return new BaseResponse<>(POST_PRODUCTS_EMPTY_REVIEWIDX);
         }
         try{
             if(userId != 0){
@@ -616,6 +642,25 @@ public class PostsController {
 
             List<GetReviews> getReviews;
             getReviews = postsProvider.getReviewList(recipeId);
+            return new BaseResponse<>(getReviews);
+
+
+        }catch (BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    @ResponseBody
+    @GetMapping("/publicRecipes/{recipeId}/reviews")
+    public BaseResponse<List<GetReviews>> getpublicReviewList (@PathVariable("recipeId") int recipeId){
+        try {
+
+            if(recipeId == 0){
+                return new BaseResponse<>(POST_PRODUCTS_EMPTY_PRODUCTID);
+            }
+
+            List<GetReviews> getReviews;
+            getReviews = postsProvider.getpublicReviewList(recipeId);
             return new BaseResponse<>(getReviews);
 
 

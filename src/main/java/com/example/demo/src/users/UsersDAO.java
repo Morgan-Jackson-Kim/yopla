@@ -5,6 +5,7 @@ import com.example.demo.src.posts.model.bookmark.PostBookmarkReq;
 import com.example.demo.src.posts.model.recipe.DeleteRecipe;
 import com.example.demo.src.posts.model.review.GetReviews;
 import com.example.demo.src.users.model.*;
+import com.example.demo.src.users.model.login.NewPassword;
 import com.example.demo.src.users.model.login.PostLoginReq;
 import com.example.demo.src.users.model.login.PostUsersReq;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class UsersDAO {
     }
 
     public int checkDuplicateLoginId(String loginId){
-        String checkDuplicateLoginIdQuery = "select exists(select loginId from users where loginId = ?)";
+        String checkDuplicateLoginIdQuery = "select exists(select loginId from users where loginId = ? AND accountStatus ='active')";
         String checkDuplicateLoginIdParams = loginId;
         return this.jdbcTemplate.queryForObject(checkDuplicateLoginIdQuery,
                 int.class,
@@ -52,7 +53,7 @@ public class UsersDAO {
     }
 
     public int checkDuplicatenickname(String nickname){
-        String checkDuplicateLoginIdQuery = "select exists(select loginId from users where userNickName = ?)";
+        String checkDuplicateLoginIdQuery = "select exists(select loginId from users where userNickName = ? AND accountStatus ='active')";
         String checkDuplicateLoginIdParams = nickname;
         return this.jdbcTemplate.queryForObject(checkDuplicateLoginIdQuery,
                 int.class,
@@ -257,14 +258,16 @@ public class UsersDAO {
     }
 
     public List<GetBookmarkList> bookmarkLists(int userId){
-        String  getbookmarkListsQuery = " select bookmarkIdx ,recipeId, recipes.recipeFrontImage , recipes.recipeName , users.userNickName, recipes.category  ,\n" +
-                "(select (sum(scores)/count(*)) from reviews where reviews.recipeId = recipes.recipesIdx && reviews.status = 'active') as averageScore,\n" +
-                "(select count(*)  from rBookmarks where recipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active') as bookmarkCount\n" +
-                "from rBookmarks \n" +
-                "join recipes \n" +
+        String  getbookmarkListsQuery = "select bookmarkIdx , recipeId , if(type = 'people',recipes.recipeFrontImage,publicRecipes.recipeFrontImage) as recipeFrontImage   , if(type = 'people',recipes.recipeName,publicRecipes.recipeName) as recipeName , users.userNickName,\n" +
+                " if(type = 'people',recipes.category ,publicRecipes.category) as category ,  \n" +
+                "if(type = 'people',(select (sum(scores)/count(*)) from reviews where reviews.recipeId =recipes.recipesIdx AND reviews.type = 'people' AND reviews.status = 'active'),(select (sum(scores)/count(*)) from reviews where reviews.recipeId =publicRecipes.recipesIdx AND reviews.type = 'public' AND reviews.status = 'active')) as averageScore,\n" +
+                "if(type = 'people',(select count(*)  from rBookmarks where  recipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active' AND rBookmarks.type = 'people'),(select count(*)  from rBookmarks where  publicRecipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active' AND rBookmarks.type = 'public')) as bookmarkCount\n" +
+                ", rBookmarks.type from rBookmarks \n" +
                 "join users \n" +
-                "on recipes.recipesIdx = rBookmarks.recipeId AND recipes.userId = users.usersIdx \n" +
-                "where rBookmarks.userId = ? AND rBookmarks.status = 'active' ORDER BY rBookmarks.bookmarkIdx DESC;";
+                "\tleft join recipes ON rBookmarks.recipeId = recipes.recipesIdx AND recipes.userId = users.usersIdx AND recipes.status = 'active'\n" +
+                "    left join publicRecipes ON rBookmarks.recipeId = publicRecipes.recipesIdx AND publicRecipes.userId = users.usersIdx AND publicRecipes.status ='active'\n" +
+                "    where ((rBookmarks.type ='people' AND recipes.recipesIdx is NOT NULL) OR (rBookmarks.type ='public' AND publicRecipes.recipesIdx IS NOT NULL)) AND\n" +
+                " rBookmarks.userId = ? AND rBookmarks.status = 'active' ORDER BY rBookmarks.bookmarkIdx DESC ";
         Object[] getbookmarkListsParams = new Object[]{userId};
         return this.jdbcTemplate.query(getbookmarkListsQuery,
                 (rs,rowNum) -> new GetBookmarkList(
@@ -275,7 +278,8 @@ public class UsersDAO {
                         rs.getString("userNickName"),
                         rs.getString("category"),
                         rs.getInt("averageScore"),
-                        rs.getInt("bookmarkCount")),
+                        rs.getInt("bookmarkCount"),
+                        rs.getString("rBookmarks.type")),
                 getbookmarkListsParams);
     }
 
@@ -377,6 +381,29 @@ public class UsersDAO {
                 checkReportsParams);
     }
 
+    public int checkReviewReports(int userId , int recipeId){
+        String checkReportsQuery = "select exists(select rstatus from reviewReports where rstatus = 'active' && userId = ? && reviewId = ?)";
+        Object[] checkReportsParams = new Object[]{userId,recipeId};
+        return this.jdbcTemplate.queryForObject(checkReportsQuery,
+                int.class,
+                checkReportsParams);
+    }
+
+    public int checkMineRecipe(int userId , int recipeId){
+        String checkReportsQuery = "select exists(select recipesIdx from recipes where status = 'active' && userId = ? && recipesIdx = ?)";
+        Object[] checkReportsParams = new Object[]{userId,recipeId};
+        return this.jdbcTemplate.queryForObject(checkReportsQuery,
+                int.class,
+                checkReportsParams);
+    }
+
+    public int checkMineReview(int userId , int reviewId){
+        String checkReportsQuery = "select exists(select reviewsIdk from reviews where status = 'active' && userId = ? && reviewsIdk = ?)";
+        Object[] checkReportsParams = new Object[]{userId,reviewId};
+        return this.jdbcTemplate.queryForObject(checkReportsQuery,
+                int.class,
+                checkReportsParams);
+    }
 
 
     public int checkDisableReports(int recipeId){
@@ -386,20 +413,73 @@ public class UsersDAO {
                 int.class,
                 checkReportsParams);
     }
+    public int checkReviewDisableReports(int recipeId){
+        String checkReportsQuery = "select count(*) from reviewReports where rstatus = 'active' && reviewId = ?";
+        Object[] checkReportsParams = new Object[]{recipeId};
+        return this.jdbcTemplate.queryForObject(checkReportsQuery,
+                int.class,
+                checkReportsParams);
+    }
 
-    public int disableRecipeTemp(int recipeId){
-        String deleteRecipQuery  = "update recipes,recipeDetails set recipes.status = 'tempDisable', recipeDetails.status = 'tempDisable'  where recipeDetails.recipeId = recipes.recipesIdx AND recipeId = ? ";
-        Object[] deleteRecipParams = new Object[]{ recipeId};
+    public int checkAvailNP(String email, String phoneNumber){
+        String checkAvailNPQuery = "select exists(select usersIdx from users where accountStatus = 'active' && userEmail = ? && phoneNumber = ?)";
+        Object[] checkAvailNPParams = new Object[]{email,phoneNumber};
+        return this.jdbcTemplate.queryForObject(checkAvailNPQuery,
+                int.class,
+                checkAvailNPParams);
+    }
+    public int checkAvailNP2(String email){
+        String checkAvailNPQuery = "select exists(select usersIdx from users where accountStatus = 'active' && userEmail = ?)";
+        Object[] checkAvailNPParams = new Object[]{email};
+        return this.jdbcTemplate.queryForObject(checkAvailNPQuery,
+                int.class,
+                checkAvailNPParams);
+    }
+
+    public int checkPN(String phoneNumber){
+        String checkAvailNPQuery = "select exists(select usersIdx from users where accountStatus = 'active'  AND phoneNumber = ?)";
+        Object[] checkAvailNPParams = new Object[]{phoneNumber};
+        return this.jdbcTemplate.queryForObject(checkAvailNPQuery,
+                int.class,
+                checkAvailNPParams);
+    }
+
+    public int disableRecipeTemp(int targetId){
+        String deleteRecipQuery  = "update recipes,recipeDetails set recipes.status = 'tempDisable', recipeDetails.status = 'tempDisable'  where recipeDetails.recipeId = recipes.recipesIdx AND recipes.recipesIdx = ? ";
+        Object[] deleteRecipParams = new Object[]{ targetId};
         return this.jdbcTemplate.update(deleteRecipQuery,deleteRecipParams);
+    }
+
+
+    public int disableReviewTemp(int targetId){
+        String disableReviewTempQuery  = "update reviews set status = 'tempDisable'  where reviewsIdk = ? ";
+        Object[] disableReviewTempParams = new Object[]{ targetId};
+        return this.jdbcTemplate.update(disableReviewTempQuery,disableReviewTempParams);
     }
 
     public int createReport(PostReport postReport){
         String postReportQuery  = "insert into recipeReports (userId , recipeId) VALUES(?,?)";
-        Object[] postReportParams = new Object[]{ postReport.getUserId() , postReport.getRecipeId()};
+        Object[] postReportParams = new Object[]{ postReport.getUserId() , postReport.getTargetId()};
         this.jdbcTemplate.update(postReportQuery,postReportParams);
 
         String lastInsertIdQuery = "select last_insert_id()";
         return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
+    }
+
+    public int createReviewReport(PostReport postReport){
+        String postReportQuery  = "insert into reviewReports (userId , reviewId) VALUES(?,?)";
+        Object[] postReportParams = new Object[]{ postReport.getUserId() , postReport.getTargetId()};
+        this.jdbcTemplate.update(postReportQuery,postReportParams);
+
+        String lastInsertIdQuery = "select last_insert_id()";
+        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
+    }
+
+
+    public void ChangePassword(String userEmail , String np){
+        String ChangePasswordQuery = "update users set password = ? where userEmail = ? && accountStatus = 'active'";
+        Object[] ChangePasswordParams = new Object[]{np,userEmail};
+         this.jdbcTemplate.update(ChangePasswordQuery, ChangePasswordParams);
     }
 
 
