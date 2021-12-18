@@ -283,7 +283,7 @@ public class PostsDAO {
                 "(select userNickName from users where recipes.userId = users.usersIdx)as usersNN , hits,\n" +
                 "(select count(*)  from rBookmarks where recipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active') as bookmarkCount,\n" +
                 " (select (sum(scores)/count(*)) from reviews where reviews.recipeId = recipes.recipesIdx && reviews.status = 'active') as averageScore  ,\n" +
-                " (select exists(select userId from rBookmarks where rBookmarks.userId = ? && rBookmarks.recipeId = recipes.recipesIdx && rBookmarks.status = 'active')) as bookmarked from recipes ORDER BY bookmarkCount desc limit 8";
+                " (select exists(select userId from rBookmarks where rBookmarks.userId = ? && rBookmarks.recipeId = recipes.recipesIdx && rBookmarks.status = 'active')) as bookmarked from recipes where recipes.status = 'active' ORDER BY bookmarkCount desc limit 8";
         Object[] getShortsParam = new Object[]{userId};
         return this.jdbcTemplate.query(getShortsQuery,
                 (rs,rowNum) -> new GetHotsRes(
@@ -306,7 +306,7 @@ public class PostsDAO {
                 "(select userNickName from users where recipes.userId = users.usersIdx)as usersNN , hits,\n" +
                 "(select count(*)  from rBookmarks where recipes.recipesIdx = rBookmarks.recipeId && rBookmarks.status = 'active') as bookmarkCount,\n" +
                 " (select (sum(scores)/count(*)) from reviews where reviews.recipeId = recipes.recipesIdx && reviews.status = 'active') as averageScore  ,\n" +
-                " (select exists(select userId from rBookmarks where rBookmarks.userId = ? && rBookmarks.recipeId = recipes.recipesIdx && rBookmarks.status = 'active')) as bookmarked from recipes ORDER BY averageScore desc limit 8";
+                " (select exists(select userId from rBookmarks where rBookmarks.userId = ? && rBookmarks.recipeId = recipes.recipesIdx && rBookmarks.status = 'active')) as bookmarked from recipes where recipes.status = 'active' ORDER BY averageScore desc limit 8";
         Object[] getShortsParam = new Object[]{userId};
         return this.jdbcTemplate.query(getShortsQuery,
                 (rs,rowNum) -> new GetRecommendRes(
