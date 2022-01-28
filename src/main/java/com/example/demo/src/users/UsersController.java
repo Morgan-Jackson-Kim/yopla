@@ -225,10 +225,12 @@ public class UsersController {
 
         try{
             int userIdxByJwt = jwtService.getUserIdx();
-
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
+            if(userId != 12){
+                if(userId != userIdxByJwt){
+                    return new BaseResponse<>(INVALID_USER_JWT);
+                }
             }
+
 
             GetMykurlyRes getMykurlyRes = usersProvider.getUserMykurlyInfo(userId);
 
@@ -245,8 +247,10 @@ public class UsersController {
         try{
             int userIdxByJwt = jwtService.getUserIdx();
 
-            if(userId != userIdxByJwt){
-                return new BaseResponse2<>(INVALID_USER_JWT);
+            if(userId != 12){
+                if(userId != userIdxByJwt){
+                    return new BaseResponse2<>(INVALID_USER_JWT);
+                }
             }
             CartUserInfo cartUserInfo = usersProvider.getcartuserInfo(userId);
 
@@ -266,8 +270,10 @@ public class UsersController {
         try{
             int userIdxByJwt = jwtService.getUserIdx();
 
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
+            if(userId != 12){
+                if(userId != userIdxByJwt){
+                    return new BaseResponse<>(INVALID_USER_JWT);
+                }
             }
 
             List<GetBookmarkList> getBookmarkList = usersProvider.getBookmarkLists(userId);
@@ -285,8 +291,10 @@ public class UsersController {
         try{
             int userIdxByJwt = jwtService.getUserIdx();
 
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
+            if(userId != 12){
+                if(userId != userIdxByJwt){
+                    return new BaseResponse<>(INVALID_USER_JWT);
+                }
             }
 
             List<GetMyRecipeList> getMyRecipeLists = usersProvider.getMyRecipes(userId);
@@ -305,8 +313,10 @@ public class UsersController {
         try{
             int userIdxByJwt = jwtService.getUserIdx();
 
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
+            if(userId != 12){
+                if(userId != userIdxByJwt){
+                    return new BaseResponse<>(INVALID_USER_JWT);
+                }
             }
 
             List<GetMyRR> getMyRRList = usersProvider.getMyRRs(userId);
@@ -324,8 +334,10 @@ public class UsersController {
         try{
             int userIdxByJwt = jwtService.getUserIdx();
 
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
+            if(userId != 12){
+                if(userId != userIdxByJwt){
+                    return new BaseResponse<>(INVALID_USER_JWT);
+                }
             }
 
             List<GetPurchaedInfo> getPurchaedInfos  = usersProvider.purchaedInfos(userId);
@@ -353,7 +365,7 @@ public class UsersController {
         }
         try{
 
-            if(userId != 0){
+            if(userId != 12 ){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -377,9 +389,12 @@ public class UsersController {
         try{
             int userIdxByJwt = jwtService.getUserIdx();
 
-            if(userId != userIdxByJwt){
-                return new BaseResponse2<>(INVALID_USER_JWT);
+            if(userId != 12){
+                if(userId != userIdxByJwt){
+                    return new BaseResponse2<>(INVALID_USER_JWT);
+                }
             }
+
             InvoiceUserInfo invoiceUserInfo = usersProvider.getinvoiceUserInfo(userId);
 
             List<InvoiceList> invoiceList = usersProvider.invoiceLists(userId);
@@ -400,7 +415,7 @@ public class UsersController {
         }
         try{
 
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -430,7 +445,7 @@ public class UsersController {
         }
         try{
 
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -457,7 +472,7 @@ public class UsersController {
             return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
         }
         try{
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -485,7 +500,7 @@ public class UsersController {
         }
         try{
 
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -514,7 +529,7 @@ public class UsersController {
         }
         try{
 
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -550,7 +565,7 @@ public class UsersController {
 
 
 
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 

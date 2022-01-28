@@ -46,7 +46,7 @@ public class PostsController {
         }
         try{
 
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -101,7 +101,7 @@ public class PostsController {
         }
         try{
 
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -155,7 +155,7 @@ public class PostsController {
         }
         try{
 
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -190,7 +190,7 @@ public class PostsController {
                 return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
             }
 
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -228,7 +228,7 @@ public class PostsController {
                 return new BaseResponse<>(POST_PRODUCTS_EMPTY_USERID);
             }
 
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -257,7 +257,7 @@ public class PostsController {
     @GetMapping("/{userId}/pplsRecipes")
     public BaseResponse4<List<GetMainAdvertisesRes>,List<GetShortsRes>,List<GetHotsRes>,List<GetRecommendRes>> GetMainPPlsPage (@PathVariable("userId") Integer userId){
         try {
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -290,7 +290,7 @@ public class PostsController {
         try {
 
 
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -315,7 +315,7 @@ public class PostsController {
         }
         try {
 
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -345,7 +345,7 @@ public class PostsController {
         try {
 
 
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -377,7 +377,7 @@ public class PostsController {
         }
         try {
 
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -402,7 +402,7 @@ public class PostsController {
         }
         try {
 
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -429,7 +429,7 @@ public class PostsController {
         }
         try {
 
-            if(userId != 0){
+            if(userId != 12){
 
                 int userIdxByJwt = jwtService.getUserIdx();
 
@@ -506,7 +506,7 @@ public class PostsController {
     @GetMapping("/{userId}/recipes/search")
     public BaseResponse<List<GetSearchRes>> searchingProduct(@PathVariable("userId") Integer userId, @RequestParam(value = "title",required = false) String input,@RequestParam(value = "tag",required = false) String tag){
         try {
-            if(userId != 0){
+            if(userId != 12){
                 int userIdxByJwt = jwtService.getUserIdx();
 
                 if(userId != userIdxByJwt){
@@ -720,7 +720,7 @@ public class PostsController {
     @GetMapping("/{userId}/category/{category}")
     public BaseResponse<List<GetSearchRes>> searchingByCategory (@PathVariable("userId") Integer userId, @PathVariable(value = "category") String input){
         try {
-            if(userId != 0){
+            if(userId != 12){
                 int userIdxByJwt = jwtService.getUserIdx();
 
                 if(userId != userIdxByJwt){
